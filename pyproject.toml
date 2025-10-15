@@ -1,5 +1,5 @@
 [project]
-name = "image-labelling"
+name = "image-rename"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
