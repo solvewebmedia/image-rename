@@ -1,9 +1,15 @@
 import os
 import argparse
+import warnings
+from tqdm import tqdm
 from caption_func import create_captions, rename_image
 
 
 IMAGE_EXTENSIONS = (".jpg", ".jpeg", ".png", ".bmp", ".gif", ".tiff")
+
+# Suppress FutureWarnings and UserWarnings
+warnings.filterwarnings("ignore", category=FutureWarning)
+warnings.filterwarnings("ignore", category=UserWarning)
 
 
 def execute_captioning(image_folder: str, prefix: str, suffix: str) -> None:
@@ -14,16 +20,16 @@ def execute_captioning(image_folder: str, prefix: str, suffix: str) -> None:
         prefix: Prefix to add to the new image name.
         suffix: Suffix to add to the new image name.
     """
-    for entry in os.listdir(image_folder):
-        if entry.lower().endswith(IMAGE_EXTENSIONS):
-            image = os.path.join(image_folder, entry)
-            captions = create_captions(image_path=image).title()
-            rename_image(
-                image_path=image,
-                new_name=captions,
-                prefix=prefix,
-                suffix=suffix,
-            )
+    images = [entry for entry in os.listdir(image_folder) if entry.lower().endswith(IMAGE_EXTENSIONS)]
+    for entry in tqdm(images, desc="Processing images", unit="img"):
+        image = os.path.join(image_folder, entry)
+        captions = create_captions(image_path=image).title()
+        rename_image(
+            image_path=image,
+            new_name=captions,
+            prefix=prefix,
+            suffix=suffix,
+        )
 
 
 def main() -> None:
@@ -56,6 +62,7 @@ def main() -> None:
     if os.path.isdir(path):
         execute_captioning(path, prefix, suffix)
     elif os.path.isfile(path) and path.lower().endswith(IMAGE_EXTENSIONS):
+        print("Processing image...")
         captions = create_captions(image_path=path).title()
         rename_image(
             image_path=path,

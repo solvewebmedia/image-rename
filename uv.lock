@@ -437,8 +437,8 @@ wheels = [
 ]
 
 [[package]]
-name = "image-labelling"
-version = "0.1.0"
+name = "image-rename"
+version = "0.2.0"
 source = { virtual = "." }
 dependencies = [
     { name = "google-cloud-vision" },
