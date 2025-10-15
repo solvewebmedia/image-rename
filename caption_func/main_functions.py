@@ -1,12 +1,18 @@
 from transformers import pipeline
 import os
+from IO import StringIO 
+import contextlib
+import sys
 
 try:
     import torch
 except ImportError:
     torch = None
 
-os.environ["TRANSFORMERS_VERBOSITY"] = "error"
+@contextlib.contextmanager
+def suppress_output():
+    with StringIO() as buf, contextlib.redirect_stdout(buf), contextlib.redirect_stderr(buf):
+        yield
 
 def create_captions(
         image_path: str = False
@@ -21,11 +27,13 @@ def create_captions(
     device = -1
     if torch is not None and torch.cuda.is_available():
         device = 0
-    captioner = pipeline(
-        task="image-to-text",
-        model="Salesforce/blip-image-captioning-base",
-        device=device,
-        use_fast=True,
-    )
+        
+    with suppress_output():
+        captioner = pipeline(
+            task="image-to-text",
+            model="Salesforce/blip-image-captioning-base",
+            device=device,
+            use_fast=True,
+        )
     # Use image_path as the path to the image
     return captioner(image_path)[0]['generated_text']
