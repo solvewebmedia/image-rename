@@ -13,6 +13,7 @@ dependencies = [
     "pd>=0.0.4",
     "pillow>=11.3.0",
     "pillow-heif>=1.1.1",
+    "rich>=14.2.0",
     "torch>=2.8.0",
     "torchvision>=0.23.0",
     "tqdm>=4.67.1",
