@@ -1,6 +1,6 @@
 from transformers import pipeline
 import os
-from IO import StringIO 
+from io import StringIO 
 import contextlib
 import sys
 
@@ -27,7 +27,7 @@ def create_captions(
     device = -1
     if torch is not None and torch.cuda.is_available():
         device = 0
-        
+
     with suppress_output():
         captioner = pipeline(
             task="image-to-text",
