@@ -24,6 +24,7 @@ def create_captions(
         model="Salesforce/blip-image-captioning-base",
         device=device,
         use_fast=True,
+        quiet=True,
     )
     # Use image_path as the path to the image
     return captioner(image_path)[0]['generated_text']
