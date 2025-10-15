@@ -1,7 +1,8 @@
 import os
 import argparse
 import warnings
-from tqdm import tqdm
+from rich.progress import Progress
+import sys
 from caption_func import create_captions, rename_image
 
 
@@ -21,15 +22,25 @@ def execute_captioning(image_folder: str, prefix: str, suffix: str) -> None:
         suffix: Suffix to add to the new image name.
     """
     images = [entry for entry in os.listdir(image_folder) if entry.lower().endswith(IMAGE_EXTENSIONS)]
-    for entry in tqdm(images, desc="Processing images", unit="img"):
-        image = os.path.join(image_folder, entry)
-        captions = create_captions(image_path=image).title()
-        rename_image(
-            image_path=image,
-            new_name=captions,
-            prefix=prefix,
-            suffix=suffix,
-        )
+    with Progress() as progress:
+        task = progress.add_task("Processing images...", total=len(images))
+        for entry in images:
+            image = os.path.join(image_folder, entry)
+            # Suppress stdout/stderr during processing
+            with open(os.devnull, "w") as devnull:
+                old_stdout, old_stderr = sys.stdout, sys.stderr
+                sys.stdout, sys.stderr = devnull, devnull
+                try:
+                    captions = create_captions(image_path=image).title()
+                finally:
+                    sys.stdout, sys.stderr = old_stdout, old_stderr
+            rename_image(
+                image_path=image,
+                new_name=captions,
+                prefix=prefix,
+                suffix=suffix,
+            )
+            progress.update(task, advance=1)
 
 
 def main() -> None:
@@ -62,14 +73,22 @@ def main() -> None:
     if os.path.isdir(path):
         execute_captioning(path, prefix, suffix)
     elif os.path.isfile(path) and path.lower().endswith(IMAGE_EXTENSIONS):
-        print("Processing image...")
-        captions = create_captions(image_path=path).title()
-        rename_image(
-            image_path=path,
-            new_name=captions,
-            prefix=prefix,
-            suffix=suffix,
-        )
+        with Progress() as progress:
+            task = progress.add_task("Processing image...", total=1)
+            with open(os.devnull, "w") as devnull:
+                old_stdout, old_stderr = sys.stdout, sys.stderr
+                sys.stdout, sys.stderr = devnull, devnull
+                try:
+                    captions = create_captions(image_path=path).title()
+                finally:
+                    sys.stdout, sys.stderr = old_stdout, old_stderr
+            rename_image(
+                image_path=path,
+                new_name=captions,
+                prefix=prefix,
+                suffix=suffix,
+            )
+            progress.update(task, advance=1)
     else:
         raise SystemExit(f"Not a valid image or directory: {path}")
 
