@@ -6,6 +6,8 @@ try:
 except ImportError:
     torch = None
 
+os.environ["TRANSFORMERS_VERBOSITY"] = "error"
+
 def create_captions(
         image_path: str = False
         ) -> list:
@@ -24,7 +26,6 @@ def create_captions(
         model="Salesforce/blip-image-captioning-base",
         device=device,
         use_fast=True,
-        quiet=True,
     )
     # Use image_path as the path to the image
     return captioner(image_path)[0]['generated_text']
