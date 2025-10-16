@@ -31,5 +31,5 @@ def create_captions(
     )
     # Pass context as the `text` argument when provided to bias the caption
     if context:
-        return captioner(image_path, text=context)[0]["generated_text"]
+        return captioner(image_path, context)[0]["generated_text"]
     return captioner(image_path)[0]["generated_text"]
