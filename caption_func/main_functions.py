@@ -6,14 +6,20 @@ except ImportError:
     torch = None
 
 def create_captions(
-        image_path: str = False
-        ) -> list:
+        image_path: str = False,
+        context: str | None = None,
+        ) -> str:
     """
-    Generate a caption for the given image using BLIP and return the raw response from the transformer.
+    Generate a caption for the given image using BLIP and return the generated text.
+
     Args:
         image_path (str): Path to the image file.
+        context (str | None): Optional bias/context text to provide to the captioner
+            to make captions less generic. Passed as the `text` argument to the
+            Hugging Face pipeline when supported by the model.
+
     Returns:
-        list: The raw response from the Hugging Face pipeline (list of dicts).
+        str: The generated caption text.
     """
     device = -1
     if torch is not None and torch.cuda.is_available():
@@ -23,5 +29,7 @@ def create_captions(
         model="Salesforce/blip-image-captioning-base",
         device=device,
     )
-    # Use image_path as the path to the image
-    return captioner(image_path)[0]['generated_text']
+    # Pass context as the `text` argument when provided to bias the caption
+    if context:
+        return captioner(image_path, text=context)[0]["generated_text"]
+    return captioner(image_path)[0]["generated_text"]

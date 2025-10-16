@@ -6,7 +6,7 @@ from caption_func import create_captions, rename_image
 IMAGE_EXTENSIONS = (".jpg", ".jpeg", ".png", ".bmp", ".gif", ".tiff")
 
 
-def execute_captioning(image_folder: str, prefix: str, suffix: str) -> None:
+def execute_captioning(image_folder: str, prefix: str, suffix: str, context: str | None = None) -> None:
     """Generate captions and rename images in the given folder.
 
     Args:
@@ -17,7 +17,7 @@ def execute_captioning(image_folder: str, prefix: str, suffix: str) -> None:
     for entry in os.listdir(image_folder):
         if entry.lower().endswith(IMAGE_EXTENSIONS):
             image = os.path.join(image_folder, entry)
-            captions = create_captions(image_path=image).title()
+            captions = create_captions(image_path=image, context=context).title()
             rename_image(
                 image_path=image,
                 new_name=captions,
@@ -48,15 +48,21 @@ def main() -> None:
         default="",
         help="Suffix to add to the new image name (default: ' - v1')",
     )
+    parser.add_argument(
+        "--context",
+        type=str,
+        default="",
+        help="Optional bias/context text to provide to the captioner to make captions less generic",
+    )
     args = parser.parse_args()
 
     path = os.path.abspath(args.path)
     prefix = args.prefix
     suffix = args.suffix
     if os.path.isdir(path):
-        execute_captioning(path, prefix, suffix)
+        execute_captioning(path, prefix, suffix, context=args.context or None)
     elif os.path.isfile(path) and path.lower().endswith(IMAGE_EXTENSIONS):
-        captions = create_captions(image_path=path).title()
+        captions = create_captions(image_path=path, context=args.context or None).title()
         rename_image(
             image_path=path,
             new_name=captions,
