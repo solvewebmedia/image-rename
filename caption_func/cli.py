@@ -39,13 +39,13 @@ def main() -> None:
     parser.add_argument(
         "--prefix",
         type=str,
-        default="Solve - ",
+        default="",
         help="Prefix to add to the new image name (default: 'Solve - ')",
     )
     parser.add_argument(
         "--suffix",
         type=str,
-        default=" - v1",
+        default="",
         help="Suffix to add to the new image name (default: ' - v1')",
     )
     args = parser.parse_args()
